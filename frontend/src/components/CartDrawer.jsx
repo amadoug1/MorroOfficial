@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 import { useStore, api } from "../lib/store";
 import { StarPatch, Star } from "./Star";
+import { thumb } from "@/lib/img";
 
 function QtyNumber({ value, testid }) {
   return (
@@ -94,7 +95,7 @@ export function CartDrawer() {
                   transition={{ duration: 0.35, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <div className="shrink-0" style={{ width: 80, height: 100, background: "var(--flatlay)" }}>
-                    <img src={line.image} alt={line.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={thumb(line.image)} alt={line.name} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                   <div className="flex-1 flex flex-col">
                     <div className="flex justify-between gap-[10px]">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore, api } from "../lib/store";
+import { srcSet } from "@/lib/img";
 
 const RECOMMENDED = [
   ["Drop 01", "/shop?collection=drop-1"],
@@ -79,13 +80,13 @@ export function SearchOverlay() {
             <div className="grid grid-cols-2 gap-[15px] mt-[40px] max-w-[600px]">
               <Link to="/lookbook" data-testid="search-tile-lookbook" onClick={close} className="block">
                 <div className="overflow-hidden" style={{ aspectRatio: "4/5", background: "var(--flatlay)" }}>
-                  <img src="/brand/lookbook-01.jpg" alt="Lookbook" className="w-full h-full object-cover" loading="lazy" />
+                  <img src="/brand/lookbook-01.jpg" srcSet={srcSet("/brand/lookbook-01.jpg")} sizes="(min-width: 768px) 20vw, 50vw" alt="Lookbook" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <p className="t-mono-xs mt-[10px]">LOOKBOOK</p>
               </Link>
               <Link to="/product/mxxvi-hoodie" data-testid="search-tile-product" onClick={close} className="block">
                 <div className="overflow-hidden" style={{ aspectRatio: "4/5", background: "var(--flatlay)" }}>
-                  <img src="/brand/hoodie-01-flatlay.jpg" alt="Product" className="w-full h-full object-cover" loading="lazy" />
+                  <img src="/brand/hoodie-01-flatlay.jpg" srcSet={srcSet("/brand/hoodie-01-flatlay.jpg")} sizes="(min-width: 768px) 20vw, 50vw" alt="Product" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <p className="t-mono-xs mt-[10px]">001 — THE HOODIE</p>
               </Link>
@@ -102,7 +103,7 @@ export function SearchOverlay() {
               {results.map((p) => (
                 <Link key={p.id} to={`/product/${p.slug}`} data-testid={`search-result-${p.slug}`} onClick={close}>
                   <div style={{ aspectRatio: "4/5", background: "var(--flatlay)" }}>
-                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={p.images[0]} srcSet={srcSet(p.images[0])} sizes="(min-width: 768px) 20vw, 50vw" alt={p.name} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                   <p className="t-mono-sm mt-[10px]">{p.name}</p>
                   <p className="t-mono-price mt-[5px]" style={{ color: "var(--muted)" }}>${p.price.toFixed(2)}</p>

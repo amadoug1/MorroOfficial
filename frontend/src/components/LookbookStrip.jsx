@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent } from "framer-motion";
 import { BecomingHeadline, DrawRule, useReducedMotion } from "./Star";
+import { srcSet } from "@/lib/img";
 
-const LOOKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => `/brand/lookbook-${String(n).padStart(2, "0")}.jpg`);
+const LOOKS = Array.from({ length: 14 }, (_, i) => i + 1).map((n) => `/brand/lookbook-${String(n).padStart(2, "0")}.jpg`);
 
 function useDesktop() {
   const [desktop, setDesktop] = useState(false);
@@ -63,7 +64,7 @@ export function LookbookStrip() {
                       animate={{ scale: active ? 1 : 0.94, opacity: active ? 1 : 0.7 }}
                       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <motion.img src={src} alt={`Look ${i + 1}`} className="w-full h-full object-cover" style={{ skewX: skew }} loading="lazy" />
+                      <motion.img src={src} srcSet={srcSet(src)} sizes="(min-width: 768px) 32vw, 280px" alt={`Look ${i + 1}`} className="w-full h-full object-cover" style={{ skewX: skew }} loading="lazy" />
                     </motion.div>
                     <p className="t-mono-xs mt-[10px]" style={{ color: "var(--muted)" }}>LOOK {String(i + 1).padStart(2, "0")}</p>
                   </Link>
@@ -89,7 +90,7 @@ export function LookbookStrip() {
             {LOOKS.map((src, i) => (
               <Link key={i} to="/lookbook" data-testid={`strip-look-${i + 1}`} className="shrink-0" style={{ width: 280, scrollSnapAlign: "center" }}>
                 <div style={{ aspectRatio: "4/5", background: "var(--flatlay)", overflow: "hidden" }}>
-                  <img src={src} alt={`Look ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                  <img src={src} srcSet={srcSet(src)} sizes="(min-width: 768px) 32vw, 280px" alt={`Look ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <p className="t-mono-xs mt-[10px]" style={{ color: "var(--muted)" }}>LOOK {String(i + 1).padStart(2, "0")}</p>
               </Link>

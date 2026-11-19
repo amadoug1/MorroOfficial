@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Star, EASE, useReducedMotion } from "./Star";
+import { srcSet } from "@/lib/img";
 
 export function Hero({ product }) {
   const reduced = useReducedMotion();
@@ -35,12 +36,12 @@ export function Hero({ product }) {
           </div>
         </div>
         <p className="t-mono-xs mt-[50px] hidden md:block" style={{ color: "var(--muted)" }}>
-          001 — “MXXVI” HOODIE · FADED BLACK · LOOKS 01—10
+          001 — “MXXVI” HOODIE · FADED BLACK · LOOKS 01—14
         </p>
       </div>
       <div className="flex-1 overflow-hidden" style={{ background: "var(--flatlay)", height: "clamp(480px, 78vh, 780px)" }}>
         <motion.img
-          src="/brand/02-hero-mobile.jpg"
+          src="/brand/02-hero-mobile.jpg" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="(min-width: 768px) 50vw, 100vw" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="(min-width: 768px) 50vw, 100vw"
           alt="DROP 01"
           className="w-full h-full object-cover"
           style={{ objectPosition: "center 30%" }}

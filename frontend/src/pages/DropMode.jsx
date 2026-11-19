@@ -6,6 +6,7 @@ import { BrandMark, Wordmark } from "../components/Logo";
 import { EmailCapture } from "../components/EmailCapture";
 import { Star, EASE } from "../components/Star";
 import { MonogramField } from "../components/Monogram";
+import { srcSet } from "@/lib/img";
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -99,7 +100,7 @@ export default function DropMode() {
         {/* Peephole */}
         <div className="overflow-hidden mb-[40px]" style={{ width: "min(560px, 90vw)", height: 96, border: "1px solid #2E2E2E" }} data-testid="peephole">
           <img
-            src="/brand/02-hero-mobile.jpg"
+            src="/brand/02-hero-mobile.jpg" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="(min-width: 768px) 40vw, 100vw" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="(min-width: 768px) 40vw, 100vw"
             alt=""
             className="w-full h-full object-cover"
             style={{ objectPosition: "center 39%" }}
@@ -192,7 +193,7 @@ export default function DropMode() {
               <div key={i} data-testid={`teaser-tile-${i}`} className="teaser-tile relative flex items-center justify-center" style={{ aspectRatio: "4/5", background: "#0A0A0A", border: "1px solid #262626" }}>
                 {t.image ? (
                   <img
-                    src={t.image}
+                    src={t.image} srcSet={srcSet(t.image)} sizes="(min-width: 768px) 25vw, 50vw"
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ filter: "blur(12px) brightness(0.45)" }}
@@ -217,8 +218,8 @@ export default function DropMode() {
         data-testid="drop-footer-strip"
       >
         <span>© 2026 MORRO</span>
-        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ color: "#8F8F8F" }} data-testid="drop-instagram">
-          INSTAGRAM [@HANDLE]
+        <a href="https://www.instagram.com/morroxxvl/" target="_blank" rel="noopener noreferrer" style={{ color: "#8F8F8F" }} data-testid="drop-instagram">
+          INSTAGRAM @MORROXXVL
         </a>
       </div>
     </div>

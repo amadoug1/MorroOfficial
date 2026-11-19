@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../lib/store";
 import { Star } from "./Star";
+import { srcSet } from "@/lib/img";
 
 export function ProductCard({ product, quickAdd = false }) {
   const { addToCart } = useStore();
@@ -33,7 +34,7 @@ export function ProductCard({ product, quickAdd = false }) {
       <Link to={`/product/${product.slug}`} className="block" data-cursor="VIEW">
         <div className="relative overflow-hidden" style={{ aspectRatio: "4/5", background: "var(--flatlay)" }}>
           <img
-            src={product.images[0]}
+            src={product.images[0]} srcSet={srcSet(product.images[0])} sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw" srcSet={srcSet(product.images[0])} sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             alt={product.name}
             loading="lazy"
             onLoad={() => setLoaded(true)}
@@ -41,7 +42,7 @@ export function ProductCard({ product, quickAdd = false }) {
           />
           {hasSecond && (
             <img
-              src={product.images[1]}
+              src={product.images[1]} srcSet={srcSet(product.images[1])} sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw" srcSet={srcSet(product.images[1])} sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
               alt=""
               loading="lazy"
               aria-hidden

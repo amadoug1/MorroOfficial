@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { srcSet } from "@/lib/img";
 
 export const EASE = [0.16, 1, 0.3, 1];
 
@@ -102,7 +103,7 @@ export function FocusImage({ src, alt = "", className = "", style = {}, imgStyle
       viewport={playOnLoad ? undefined : { once: true, amount: 0.2 }}
       transition={{ duration: 1.4, ease: EASE }}
     >
-      <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} className="w-full h-full object-cover" style={imgStyle} />
+      <img src={src} srcSet={srcSet(src)} sizes="(min-width: 768px) 50vw, 100vw" alt={alt} loading={eager ? "eager" : "lazy"} className="w-full h-full object-cover" style={imgStyle} />
     </motion.div>
   );
 }

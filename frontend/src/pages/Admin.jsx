@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, useStore, ADMIN_TOKEN_KEY } from "../lib/store";
+import { thumb } from "@/lib/img";
 
 const EMPTY = {
   name: "", category: "sweatshirts", price: "", description: "", details: "",
@@ -243,7 +244,7 @@ export default function Admin() {
             {products.map((p) => (
               <div key={p.id} className="flex items-center gap-[15px] py-[15px]" style={{ borderTop: "1px solid var(--hairline)" }} data-testid={`admin-product-${p.slug}`}>
                 <div style={{ width: 45, height: 56, background: "var(--flatlay)" }} className="shrink-0">
-                  {p.images[0] && <img src={p.images[0]} alt="" className="w-full h-full object-cover" loading="lazy" />}
+                  {p.images[0] && <img src={thumb(p.images[0])} alt="" className="w-full h-full object-cover" loading="lazy" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="t-mono-sm truncate">{p.name}{p.sold_out && <span style={{ color: "var(--muted)" }}> — SOLD OUT</span>}</p>

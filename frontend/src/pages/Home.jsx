@@ -12,6 +12,7 @@ import { LookbookStrip } from "../components/LookbookStrip";
 import { Star, BecomingHeadline, DrawRule, EASE, useReducedMotion } from "../components/Star";
 import { Scramble } from "../components/Experience";
 import { MonogramField } from "../components/Monogram";
+import { srcSet } from "@/lib/img";
 
 const ROTATING_WORDS = ["BETTER", "BOLDER", "GREATER", "YOURSELF"];
 
@@ -158,7 +159,9 @@ export default function Home() {
     api.get("/settings").then(({ data }) => setSettings(data)).catch(() => setSettings({}));
   }, []);
 
-  const wild = settings?.wild_images || ["", "", ""];
+  const wild = (settings?.wild_images || []).filter(Boolean);
+  // "In the wild" stays hidden until lifestyle photos are added in Studio.
+  const hasWild = wild.length > 0;
 
   return (
     <div data-testid="home-page">
@@ -220,7 +223,7 @@ export default function Home() {
         </div>
         <div className="hidden md:block overflow-hidden relative z-[1]" style={{ minHeight: 660 }}>
           <motion.img
-            src="/brand/hoodie-05-sleeve.jpg"
+            src="/brand/hoodie-05-sleeve.jpg" srcSet={srcSet("/brand/hoodie-05-sleeve.jpg")} sizes="(min-width: 768px) 50vw, 100vw" srcSet={srcSet("/brand/hoodie-05-sleeve.jpg")} sizes="(min-width: 768px) 50vw, 100vw"
             alt="Sleeve monogram"
             className="w-full h-full object-cover"
             style={{ y: reduced ? 0 : sleeveY, scale: reduced ? 1 : sleeveScale }}
@@ -242,29 +245,24 @@ export default function Home() {
       <LookbookStrip />
 
       {/* e) IN THE WILD */}
+      {hasWild && (
       <section className="px-[20px] md:px-[40px] pb-[60px]" data-testid="in-the-wild-section">
         <SectionLabel>(05) IN THE WILD</SectionLabel>
-        <div className="flex items-baseline justify-between mb-[15px]">
-          <h2><BecomingHeadline nowrap style={{ fontSize: 32 }}>IN THE WILD</BecomingHeadline></h2>
-          <span className="t-mono-xs" style={{ color: "var(--muted)" }}>NEXT SHOOT: STREET + LIFESTYLE</span>
-        </div>
+        <h2 className="mb-[15px]"><BecomingHeadline nowrap style={{ fontSize: 32 }}>IN THE WILD</BecomingHeadline></h2>
         <DrawRule style={{ marginBottom: 30 }} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-[15px]">
-          {[0, 1, 2].map((i) => (
-            <div key={i} data-testid={`wild-tile-${i + 1}`} className="flex items-center justify-center" style={{ aspectRatio: "4/5", background: wild[i] ? "var(--flatlay)" : "#F4F4F2", border: wild[i] ? "none" : "1px dashed #8A8A8A" }}>
-              {wild[i] ? (
-                <img src={wild[i]} alt={`Lifestyle ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-              ) : (
-                <span className="t-mono-xs" style={{ color: "#6B6B6B" }}>[LIFESTYLE PHOTO {String(i + 1).padStart(2, "0")}]</span>
-              )}
+          {wild.map((src, i) => (
+            <div key={src} data-testid={`wild-tile-${i + 1}`} style={{ aspectRatio: "4/5", background: "var(--flatlay)" }}>
+              <img src={src} srcSet={srcSet(src)} sizes="(min-width: 768px) 33vw, 100vw" alt={`Lifestyle ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ))}
         </div>
       </section>
+      )}
 
       {/* f) NEWSLETTER */}
       <section className="px-[20px] md:px-[40px] py-[80px]" style={{ background: "var(--studio)" }} data-testid="newsletter-section">
-        <SectionLabel>(06) JOIN</SectionLabel>
+        <SectionLabel>{hasWild ? "(06)" : "(05)"} JOIN</SectionLabel>
         <h2 className="mb-[20px]">
           <BecomingHeadline nowrap style={{ fontSize: "clamp(40px, 6vw, 88px)", lineHeight: 0.95 }}>
             DON'T MISS DROP 02.

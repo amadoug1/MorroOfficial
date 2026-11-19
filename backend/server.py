@@ -561,59 +561,6 @@ async def list_orders(user: dict = Depends(get_current_admin)):
 
 # ---------- Seed ----------
 
-SEASON = "FW26"
-
-SEED_PRODUCTS = [
-    {"name": "Heavyweight Box Tee", "category": "tees", "price": 95.0, "colors": ["Washed Black"], "color_hexes": ["#2B2B2B"],
-     "collections": ["new-arrivals", "drop-1"],
-     "images": ["https://images.unsplash.com/photo-1532074198010-97d0c3700b7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Fleece Oversized Hoodie", "category": "sweatshirts", "price": 220.0, "colors": ["Oatmeal"], "color_hexes": ["#D9CDB8"],
-     "collections": ["new-arrivals", "drop-1"],
-     "images": ["https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Ribbed Knit Crewneck", "category": "sweaters", "price": 280.0, "colors": ["Espresso"], "color_hexes": ["#4A3428"],
-     "collections": ["new-arrivals", "drop-1"],
-     "images": ["https://images.unsplash.com/photo-1669575861396-131deb9669d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwyfHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1636486183541-83634a8dc9a7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Pleated Wool Trouser", "category": "pants", "price": 310.0, "colors": ["Charcoal"], "color_hexes": ["#3A3A3A"],
-     "collections": ["new-arrivals", "drop-2"],
-     "images": ["https://images.unsplash.com/photo-1519831296458-9341fc9d2b18?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1681404141874-633aa2de7c76?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Heavy Terry Sweatpant", "category": "sweatpants", "price": 185.0, "colors": ["Heather Grey"], "color_hexes": ["#A8A8A8"],
-     "collections": ["drop-1"],
-     "images": ["https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1685328403732-64be6bb9d112?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHw0fHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Tailored Canvas Short", "category": "shorts", "price": 140.0, "colors": ["Sand"], "color_hexes": ["#C9B99B"],
-     "collections": ["drop-2"],
-     "images": ["https://images.unsplash.com/photo-1685328403732-64be6bb9d112?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHw0fHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1611817757591-c3f345024273?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Waxed Cotton Field Jacket", "category": "outerwear", "price": 490.0, "colors": ["Olive Forest"], "color_hexes": ["#4A4A38"],
-     "collections": ["new-arrivals", "drop-2"],
-     "images": ["https://images.unsplash.com/photo-1612029938221-a01e8c947edb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHw0fHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1532074198010-97d0c3700b7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Structured Twill Cap", "category": "headwear", "price": 75.0, "colors": ["Navy Ink"], "color_hexes": ["#1E2634"],
-     "collections": ["drop-1"],
-     "images": ["https://images.unsplash.com/photo-1532074198010-97d0c3700b7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1681404141874-633aa2de7c76?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Full-Grain Leather Tote", "category": "accessories", "price": 420.0, "colors": ["Black Ink"], "color_hexes": ["#181818"], "sizes": ["OS"],
-     "collections": ["drop-2"],
-     "images": ["https://images.unsplash.com/photo-1611817757591-c3f345024273?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGFwcGFyZWwlMjBjbG90aGluZyUyMGphY2tldCUyMGhvb2RpZSUyMG1pbmltYWx8ZW58MHx8fHwxNzk0MTA5Nzg0fDA&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Unstructured Wool Blazer", "category": "outerwear", "price": 540.0, "colors": ["Camel"], "color_hexes": ["#B08D5F"],
-     "collections": ["drop-2"],
-     "images": ["https://images.unsplash.com/photo-1669575861396-131deb9669d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwyfHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1519831296458-9341fc9d2b18?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Washed Denim Trucker", "category": "outerwear", "price": 360.0, "colors": ["Indigo"], "color_hexes": ["#2E3A50"],
-     "collections": ["drop-1"],
-     "images": ["https://images.unsplash.com/photo-1756451182421-d2a1961638c9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwyfHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1612029938221-a01e8c947edb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHw0fHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-    {"name": "Merino Wool Beanie", "category": "headwear", "price": 65.0, "colors": ["Off White"], "color_hexes": ["#EDEAE3"], "sizes": ["OS"],
-     "collections": ["drop-2"], "sold_out": True,
-     "images": ["https://images.unsplash.com/photo-1636486183541-83634a8dc9a7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHxtZW5zd2VhciUyMGxvb2tib29rJTIwZmFzaGlvbiUyMHBvcnRyYWl0JTIwd2FybSUyMGxpZ2h0fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85",
-                 "https://images.unsplash.com/photo-1532074198010-97d0c3700b7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxtZW5zd2VhciUyMGVkaXRvcmlhbCUyMHN0cmVldHdlYXIlMjB3YXJtJTIwZmlsbSUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc5NDEwOTc4NHww&ixlib=rb-4.1.0&q=85"]},
-]
-
 
 async def seed_products():
     count = await db.products.count_documents({})

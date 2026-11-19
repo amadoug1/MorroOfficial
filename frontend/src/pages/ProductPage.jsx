@@ -5,6 +5,7 @@ import { Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { api, useStore } from "../lib/store";
 import { Star, BecomingHeadline, FocusImage, DrawRule, EASE, useReducedMotion } from "../components/Star";
+import { srcSet } from "@/lib/img";
 
 function Accordion({ title, children, id, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -253,7 +254,7 @@ export default function ProductPage() {
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 1, delay: i * 0.08, ease: EASE }}
                 >
-                  <img src={g.src} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" loading={i < 2 ? "eager" : "lazy"} />
+                  <img src={g.src} srcSet={srcSet(g.src)} sizes="(min-width: 768px) 50vw, 100vw" alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" loading={i < 2 ? "eager" : "lazy"} />
                   {g.label && (
                     <span className="t-mono-xs absolute bottom-[10px] left-[10px] px-[8px] py-[4px]" style={{ background: "var(--paper)", color: "var(--ink)" }}>
                       {g.label}
@@ -271,7 +272,7 @@ export default function ProductPage() {
               >
                 {gallery.map((g, i) => (
                   <button key={i} className="w-full shrink-0 snap-center relative" style={{ aspectRatio: "4/5" }} onClick={() => setViewer(i)}>
-                    <img src={g.src} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
+                    <img src={g.src} srcSet={srcSet(g.src)} sizes="(min-width: 768px) 50vw, 100vw" alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
                     {g.label && (
                       <span className="t-mono-xs absolute bottom-[10px] left-[10px] px-[8px] py-[4px]" style={{ background: "var(--paper)", color: "var(--ink)" }}>
                         {g.label}

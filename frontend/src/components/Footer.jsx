@@ -4,6 +4,7 @@ import { Wordmark } from "./Logo";
 import { Star, EASE, useReducedMotion } from "./Star";
 import { Scramble, LiveClock } from "./Experience";
 import { useStore } from "../lib/store";
+import { PatchSignoff } from "./PatchSignoff";
 
 function FooterWordmark() {
   const reduced = useReducedMotion();
@@ -24,13 +25,15 @@ function FooterWordmark() {
 const COLUMNS = [
   ["SHOP", [["Drop 01", "/shop?collection=drop-1"], ["Lookbook", "/lookbook"]]],
   ["HELP", [["Shipping", "/shipping"], ["Returns", "/returns"], ["Size guide", "/client-services"], ["Contact", "/client-services"]]],
-  ["FOLLOW", [["Instagram [@HANDLE]", "https://instagram.com"], ["TikTok [@HANDLE]", "https://tiktok.com"]]],
+  ["FOLLOW", [["Instagram @morroxxvl", "https://www.instagram.com/morroxxvl/"], ["TikTok [@HANDLE]", "https://tiktok.com"]]],
 ];
 
 export function Footer() {
   const { setRegionOpen, region } = useStore();
 
   return (
+    <>
+    <PatchSignoff />
     <footer data-testid="footer" style={{ background: "var(--black)", color: "var(--paper)" }}>
       <div className="px-[20px] md:px-[40px] pt-[60px] pb-[30px]">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-[40px] mb-[60px] max-w-[900px]">
@@ -77,5 +80,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }
