@@ -47,14 +47,16 @@ function Gate({ children }) {
 }
 
 function PreviewBar() {
+  const { setAdminPreview } = useStore();
   return (
     <div
       data-testid="drop-preview-bar"
       className="t-mono-xs fixed bottom-0 inset-x-0 z-[100] flex items-center justify-center gap-[15px] py-[10px] px-[20px] text-center"
       style={{ background: "#d4ff3a", color: "#111" }}
     >
-      <span>DROP MODE IS LIVE · VISITORS SEE THE COUNTDOWN · YOU'RE PREVIEWING AS ADMIN</span>
-      <a href="/admin" style={{ textDecoration: "underline" }}>STUDIO</a>
+      <span>PREVIEW · DROP MODE IS LIVE · CUSTOMERS SEE THE COUNTDOWN</span>
+      <a href="/admin?tab=dropmode" style={{ textDecoration: "underline" }}>STUDIO</a>
+      <button data-testid="exit-preview" onClick={() => setAdminPreview(false)} style={{ textDecoration: "underline" }}>EXIT PREVIEW</button>
     </div>
   );
 }
@@ -75,7 +77,8 @@ function Layout() {
   }, []);
 
   const { settings } = useStore();
-  const previewing = settings && settings.drop_mode && settings.access === "admin";
+  const { dropLive, isAdmin, adminPreview } = useStore();
+  const previewing = dropLive && isAdmin && adminPreview;
 
   return (
     <div className="App">

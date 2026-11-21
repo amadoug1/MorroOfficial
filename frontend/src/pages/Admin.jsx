@@ -35,10 +35,10 @@ function Toggle({ on, onChange, label, testid }) {
 function DropStatus({ settings }) {
   const expired = settings.drop_mode && !settings.drop_live;
   const text = settings.drop_live
-    ? "LIVE — VISITORS SEE THE COUNTDOWN. YOU CAN STILL BROWSE AND EDIT THE FULL SITE WHILE SIGNED IN."
+    ? "LIVE — EVERYONE SEES THE COUNTDOWN. CHECKOUT AND PRODUCTS ARE LOCKED. ONLY PEOPLE WITH THE EARLY-ACCESS PASSWORD CAN SHOP."
     : expired
       ? "ON, BUT THE DROP TIME HAS PASSED — THE SITE IS PUBLIC. CLEAR OR MOVE THE DROP DATE TO GO LIVE AGAIN."
-      : "OFF — THE SITE IS PUBLIC.";
+      : "OFF — THE STORE IS OPEN TO EVERYONE.";
   return (
     <p data-testid="dm-status" className="t-mono-xs py-[12px] px-[15px] mb-[10px]"
       style={{ background: settings.drop_live ? "var(--ink)" : "var(--studio)", color: settings.drop_live ? "white" : "var(--ink)" }}>
@@ -54,15 +54,45 @@ function DropModePanel({ settings, onSaved }) {
 
   useEffect(() => setForm(settings), [settings]);
 
-  const save = async () => {
+  // The switch takes effect immediately; the fields below still use SAVE SETTINGS.
+  const [switching, setSwitching] = useState(false);
+  const flip = async (on) => {
     setMsg("");
+    setSwitching(true);
+    const update = { drop_mode: on };
+    // Turning it on with a drop time that already passed would switch straight back off.
+    let cleared = false;
+    if (on && form.drop_at && new Date(form.drop_at) <= new Date()) {
+      update.drop_at = "";
+      cleared = true;
+    }
     try {
-      const { data } = await api.put("/settings", form);
+      const { data } = await api.put("/settings", update);
       onSaved(data);
-      refreshSettings();
-      setMsg("SAVED");
+      setForm((f) => ({ ...f, ...update }));
+      await refreshSettings();
+      setMsg(on
+        ? `DROP MODE IS ON — THE STORE IS CLOSED FOR EVERYONE.${cleared ? " THE OLD DROP TIME HAD PASSED, SO IT WAS CLEARED (NO COUNTDOWN)." : ""}`
+        : "DROP MODE IS OFF — THE STORE IS OPEN.");
     } catch {
-      setMsg("SAVE FAILED");
+      setMsg("COULDN'T SWITCH DROP MODE — CHECK YOU'RE STILL SIGNED IN AND TRY AGAIN.");
+    } finally {
+      setSwitching(false);
+    }
+  };
+
+  const [saveMsg, setSaveMsg] = useState("");
+  const save = async () => {
+    setSaveMsg("");
+    // eslint-disable-next-line no-unused-vars
+    const { drop_mode, drop_live, ...fields } = form; // the switch saves itself
+    try {
+      const { data } = await api.put("/settings", fields);
+      onSaved(data);
+      await refreshSettings();
+      setSaveMsg("SAVED");
+    } catch {
+      setSaveMsg("SAVE FAILED — CHECK YOU'RE STILL SIGNED IN.");
     }
   };
 
@@ -83,7 +113,8 @@ function DropModePanel({ settings, onSaved }) {
     <div className="max-w-[640px]" data-testid="drop-mode-panel">
       <SectionTitle>DROP MODE</SectionTitle>
       <DropStatus settings={settings} />
-      <Toggle on={!!form.drop_mode} onChange={(v) => setForm({ ...form, drop_mode: v })} label="DROP MODE: ON/OFF" testid="drop-mode-toggle" />
+      <Toggle on={!!settings.drop_mode} onChange={(v) => !switching && flip(v)} label={`DROP MODE: ${settings.drop_mode ? "ON" : "OFF"}`} testid="drop-mode-toggle" />
+      {msg && <p className="t-mono-xs mt-[10px]" data-testid="dm-switch-msg">{msg}</p>}
       <div className="flex flex-col gap-[15px] mt-[25px]">
         <input data-testid="dm-announcement" placeholder="ANNOUNCEMENT BAR TEXT" className="t-mono-sm bg-transparent outline-none" style={field}
           value={form.announcement_text || ""} onChange={(e) => setForm({ ...form, announcement_text: e.target.value })} />
@@ -121,7 +152,8 @@ function DropModePanel({ settings, onSaved }) {
             value={(form.wild_images || [])[i] || ""} onChange={(e) => setWild(i, e.target.value)} />
         ))}
 
-        {msg && <p className="t-mono-xs" data-testid="dm-save-msg">{msg}</p>}
+
+        {saveMsg && <p className="t-mono-xs" data-testid="dm-save-msg">{saveMsg}</p>}
         <button data-testid="dm-save" className="btn-primary" onClick={save}>SAVE SETTINGS</button>
       </div>
     </div>
@@ -133,7 +165,7 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [settings, setSettings] = useState(null);
-  const [tab, setTab] = useState("products");
+  const [tab, setTab] = useState(() => (new URLSearchParams(window.location.search).get("tab") === "dropmode" ? "dropmode" : "products"));
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState("");

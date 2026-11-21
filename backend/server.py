@@ -5,6 +5,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 import asyncio
+import hashlib
 import os
 import logging
 import bcrypt
@@ -135,7 +136,7 @@ DEFAULT_SETTINGS = {
     "drop_label": "DROP 01",
     "drop_at": "",
     "drop_display_date": "FRI 05 DEC / 7:00 PM EST",
-    "drop_password": "MXXVI2026",
+    "drop_password": "",
     "announcement_text": "DROP 01 — OUT NOW · JOIN THE LIST FOR DROP 02",
     "shipping_fee": None,
     "wild_images": ["", "", ""],
@@ -209,26 +210,38 @@ async def get_current_admin(request: Request) -> dict:
     return user
 
 
-def create_drop_pass() -> str:
-    payload = {"type": "drop", "exp": datetime.now(timezone.utc) + timedelta(hours=DROP_PASS_HOURS)}
+def _password_version(password: str) -> str:
+    # Passes are tied to the password they were issued for, so changing it revokes them.
+    return hashlib.sha256((password or "").encode()).hexdigest()[:16]
+
+
+def create_drop_pass(password: str) -> str:
+    payload = {"type": "drop", "pv": _password_version(password),
+               "exp": datetime.now(timezone.utc) + timedelta(hours=DROP_PASS_HOURS)}
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
-def has_drop_pass(request: Request) -> bool:
-    token = request.cookies.get("drop_pass") or request.headers.get("X-Drop-Pass")
-    if not token:
+def has_drop_pass(request: Request, settings_doc: dict) -> bool:
+    password = settings_doc.get("drop_password")
+    if not password:
         return False
-    try:
-        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM]).get("type") == "drop"
-    except jwt.InvalidTokenError:
-        return False
+    for token in (request.cookies.get("drop_pass"), request.headers.get("X-Drop-Pass")):
+        if not token:
+            continue
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        except jwt.InvalidTokenError:
+            continue
+        if payload.get("type") == "drop" and payload.get("pv") == _password_version(password):
+            return True
+    return False
 
 
-async def site_access(request: Request) -> Optional[str]:
+async def site_access(request: Request, settings_doc: dict) -> Optional[str]:
     """Who may see the store while Drop Mode is live: 'admin', 'unlocked', or None."""
     if await admin_from_request(request):
         return "admin"
-    if has_drop_pass(request):
+    if has_drop_pass(request, settings_doc):
         return "unlocked"
     return None
 
@@ -236,7 +249,7 @@ async def site_access(request: Request) -> Optional[str]:
 async def require_site_open(request: Request) -> None:
     """Block store data for the public while Drop Mode is live."""
     doc = await get_settings_doc()
-    if drop_is_live(doc) and not await site_access(request):
+    if drop_is_live(doc) and not await site_access(request, doc):
         raise HTTPException(status_code=403, detail="Drop Mode is live")
 
 
@@ -391,7 +404,7 @@ async def get_settings(request: Request):
     doc = await get_settings_doc()
     public = {k: v for k, v in doc.items() if k not in ("_id", "key", "drop_password")}
     public["drop_mode"] = drop_is_live(doc)
-    public["access"] = await site_access(request)
+    public["access"] = await site_access(request, doc)
     return public
 
 
@@ -414,7 +427,7 @@ async def unlock_drop(req: UnlockRequest, response: Response):
     doc = await get_settings_doc()
     if not req.password or req.password != doc.get("drop_password"):
         raise HTTPException(status_code=401, detail="Wrong password")
-    token = create_drop_pass()
+    token = create_drop_pass(doc.get("drop_password"))
     response.set_cookie(key="drop_pass", value=token, httponly=True, secure=True,
                         samesite="none", max_age=DROP_PASS_HOURS * 3600, path="/")
     return {"ok": True, "token": token}

@@ -7,6 +7,7 @@ export const api = axios.create({ baseURL: API, withCredentials: true });
 
 export const ADMIN_TOKEN_KEY = "morro_admin_token";
 export const DROP_PASS_KEY = "morro_drop_pass";
+const PREVIEW_KEY = "morro_admin_preview";
 
 // Cookies can be blocked cross-site, so also send stored tokens as headers.
 api.interceptors.request.use((config) => {
@@ -49,12 +50,34 @@ export function StoreProvider({ children }) {
     []
   );
 
+  // Keep every open tab in sync: re-check on load, when the tab regains focus, and every minute,
+  // so visitors flip to/from the countdown without reloading when Drop Mode changes.
   useEffect(() => {
     refreshSettings();
+    const onFocus = () => document.visibilityState === "visible" && refreshSettings();
+    const timer = setInterval(refreshSettings, 60000);
+    document.addEventListener("visibilitychange", onFocus);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [refreshSettings]);
 
-  // Drop Mode is live and this visitor has neither an admin session nor a drop pass.
-  const siteLocked = !!(settings && settings.drop_mode && !settings.access);
+  // Admins see the countdown like everyone else, and can opt in to previewing the full site
+  // for this browser tab. A drop-password holder always sees the site.
+  const [adminPreview, setAdminPreviewState] = useState(() => {
+    try { return sessionStorage.getItem(PREVIEW_KEY) === "1"; } catch { return false; }
+  });
+  const setAdminPreview = useCallback((on) => {
+    try { on ? sessionStorage.setItem(PREVIEW_KEY, "1") : sessionStorage.removeItem(PREVIEW_KEY); } catch { /* per-tab only */ }
+    setAdminPreviewState(on);
+  }, []);
+
+  const isAdmin = settings?.access === "admin";
+  const dropLive = !!settings?.drop_mode;
+  const siteLocked = dropLive && !(settings?.access === "unlocked" || (isAdmin && adminPreview));
 
   const addToCart = useCallback((item, flyRect = null) => {
     setCart((prev) => {
@@ -97,7 +120,7 @@ export function StoreProvider({ children }) {
         cart, addToCart, updateQty, removeLine, clearCart, cartCount, subtotal,
         cartOpen, setCartOpen, menuOpen, setMenuOpen,
         searchOpen, setSearchOpen, regionOpen, setRegionOpen, region, setRegion,
-        settings, setSettings, refreshSettings, siteLocked,
+        settings, setSettings, refreshSettings, siteLocked, dropLive, isAdmin, adminPreview, setAdminPreview,
       }}
     >
       {children}

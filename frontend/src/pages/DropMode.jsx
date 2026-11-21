@@ -37,7 +37,7 @@ function CountDigit({ value, label }) {
 }
 
 export default function DropMode() {
-  const { settings, refreshSettings } = useStore();
+  const { settings, refreshSettings, isAdmin, setAdminPreview } = useStore();
   const [now, setNow] = useState(new Date());
   const [pwOpen, setPwOpen] = useState(false);
   const [pw, setPw] = useState("");
@@ -51,6 +51,19 @@ export default function DropMode() {
   const target = useMemo(() => (settings?.drop_at ? new Date(settings.drop_at) : null), [settings]);
 
   const diff = target ? Math.max(0, target.getTime() - now.getTime()) : 0;
+  const hasCountdown = !!target && !Number.isNaN(target.getTime());
+
+  // When the countdown hits zero, ask the server again: it ends Drop Mode at the drop time
+  // and the store opens for this visitor without a reload. Retries every few seconds in case
+  // this device's clock runs slightly ahead of the server's.
+  const ended = hasCountdown && diff === 0;
+  useEffect(() => {
+    if (!ended) return undefined;
+    refreshSettings();
+    const t = setInterval(refreshSettings, 5000);
+    return () => clearInterval(t);
+  }, [ended, refreshSettings]);
+  const displayDate = settings?.drop_display_date || "";
   const days = Math.floor(diff / 86400000);
   const hrs = Math.floor((diff % 86400000) / 3600000);
   const mins = Math.floor((diff % 3600000) / 60000);
@@ -80,6 +93,17 @@ export default function DropMode() {
   return (
     <div className="relative overflow-hidden" style={{ background: "var(--black)", color: "var(--paper)", minHeight: "100vh" }} data-testid="drop-mode-page">
       <MonogramField opacity={0.03} />
+      {isAdmin && (
+        <div
+          data-testid="drop-admin-bar"
+          className="t-mono-xs relative z-[2] flex flex-wrap items-center justify-center gap-x-[18px] gap-y-[6px] px-[15px] py-[10px] text-center"
+          style={{ background: "#d4ff3a", color: "#111" }}
+        >
+          <span>SIGNED IN · THIS IS WHAT CUSTOMERS SEE</span>
+          <a href="/admin?tab=dropmode" data-testid="drop-admin-studio" style={{ textDecoration: "underline" }}>STUDIO (TURN OFF DROP MODE)</a>
+          <button data-testid="drop-admin-preview" onClick={() => setAdminPreview(true)} style={{ textDecoration: "underline" }}>PREVIEW FULL SITE</button>
+        </div>
+      )}
       {/* Top strip */}
       <div
         className="t-mono-sm flex items-center justify-between px-[15px] md:px-[25px]"
@@ -88,7 +112,7 @@ export default function DropMode() {
       >
         <span>● STORE CLOSED</span>
         <span data-testid="local-clock">LOCAL TIME {clock}</span>
-        <span className="hidden md:inline">NEXT DROP: {settings?.drop_display_date || "FRI 05 DEC / 7:00 PM EST"}</span>
+        {displayDate ? <span className="hidden md:inline">NEXT DROP: {displayDate}</span> : <span className="hidden md:inline">NEXT DROP: SOON</span>}
       </div>
 
       <div className="relative z-[1] flex flex-col items-center px-[20px] pt-[60px] pb-[80px] text-center">
@@ -100,7 +124,7 @@ export default function DropMode() {
         {/* Peephole */}
         <div className="overflow-hidden mb-[40px]" style={{ width: "min(560px, 90vw)", height: 96, border: "1px solid #2E2E2E" }} data-testid="peephole">
           <img
-            src="/brand/02-hero-mobile.jpg" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="(min-width: 768px) 40vw, 100vw" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="(min-width: 768px) 40vw, 100vw"
+            src="/brand/02-hero-mobile.jpg" srcSet={srcSet("/brand/02-hero-mobile.jpg")} sizes="min(560px, 90vw)"
             alt=""
             className="w-full h-full object-cover"
             style={{ objectPosition: "center 39%" }}
@@ -118,10 +142,11 @@ export default function DropMode() {
         </p>
 
         <p className="t-mono-md mb-[20px]" style={{ color: "var(--muted-dark)" }} data-testid="drop-date-text">
-          {settings?.drop_display_date || "FRI 05 DEC / 7:00 PM EST"}
+          {ended ? "OPENING NOW" : displayDate || "COMING SOON"}
         </p>
 
-        {/* Countdown */}
+        {/* Countdown (only when a drop time is set) */}
+        {hasCountdown && (
         <div className="flex items-start justify-center mb-[50px]" data-testid="countdown" style={{ gap: "clamp(8px, 3vw, 30px)" }}>
           {[
             [pad(days), "DAYS"],
@@ -139,6 +164,8 @@ export default function DropMode() {
             </div>
           ))}
         </div>
+        )}
+        {!hasCountdown && <div className="mb-[30px]" />}
 
         {/* Email capture */}
         <div className="w-full" style={{ maxWidth: 480 }}>
@@ -218,6 +245,9 @@ export default function DropMode() {
         data-testid="drop-footer-strip"
       >
         <span>© 2026 MORRO</span>
+        {!isAdmin && (
+          <a href="/account" data-testid="drop-staff-signin" style={{ color: "#8F8F8F" }}>STAFF SIGN IN</a>
+        )}
         <a href="https://www.instagram.com/morroxxvl/" target="_blank" rel="noopener noreferrer" style={{ color: "#8F8F8F" }} data-testid="drop-instagram">
           INSTAGRAM @MORROXXVL
         </a>
